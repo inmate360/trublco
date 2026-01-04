@@ -1,0 +1,116 @@
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border-top: 2px solid var(--border-color);
+    padding: 0.75rem 0;
+    z-index: 999;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+.bottom-nav-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-decoration: none;
+    color: var(--text-gray);
+    transition: all 0.3s;
+    padding: 0.5rem;
+    border-radius: 10px;
+    min-width: 60px;
+    position: relative;
+}
+
+.bottom-nav-item.active {
+    color: var(--primary-blue);
+}
+
+.bottom-nav-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(66, 103, 245, 0.1);
+    border-radius: 10px;
+    font-size: 1.3rem;
+    transition: all 0.3s;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+    background: var(--primary-blue);
+    color: white;
+    transform: scale(1.1);
+}
+
+.bottom-nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.bottom-nav-badge {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    background: var(--danger-red);
+    color: white;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 10px;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Add padding to body when bottom nav is visible */
+body.has-bottom-nav {
+    padding-bottom: 80px;
+}
+
+/* Show bottom nav on mobile */
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: block;
+    }
+    
+    body.has-bottom-nav {
+        padding-bottom: 80px;
+    }
+    
+    /* Hide regular navbar on mobile when bottom nav is present */
+    .navbar-blue {
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .bottom-nav-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 1.2rem;
+    }
+    
+    .bottom-nav-label {
+        font-size: 0.65rem;
+    }
+    
+    .bottom-nav-item {
+        min-width: 55px;
+        padding: 0.4rem;
+    }
+}

@@ -1,0 +1,60 @@
+# robots.txt for trubl.co
+
+User-agent: *
+Allow: /
+
+# Disallow private areas
+Disallow: /admin/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /classes/
+Disallow: /api/private/
+Disallow: /dashboard.php
+Disallow: /messages.php
+Disallow: /settings.php
+Disallow: /edit-profile.php
+Disallow: /my-listings.php
+Disallow: /creator-dashboard.php
+Disallow: /billing.php
+
+# Disallow duplicate content
+Disallow: /*?sort=
+Disallow: /*?page=
+Disallow: /*?filter=
+
+# Allow public content
+Allow: /browse.php
+Allow: /story.php
+Allow: /marketplace.php
+Allow: /forum.php
+Allow: /listing.php
+Allow: /story-view.php
+
+# Sitemap location
+Sitemap: https://trubl.co/sitemap.xml
+Sitemap: https://trubl.co/sitemap.php
+
+# Crawl delay (1 second)
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

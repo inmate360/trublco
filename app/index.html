@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>trubl - Adult Personals</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'gh-bg': '#0a0a0a',
+                        'gh-panel': '#151515',
+                        'gh-panel2': '#1a1a1a',
+                        'gh-border': '#2a2a2a',
+                        'gh-accent': '#ec4899',
+                        'gh-muted': '#9ca3af',
+                        'gh-success': '#10b981',
+                        'gh-fg': '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* RGB Orb Animation */
+        @keyframes rgbOrb {
+            0% {
+                background: linear-gradient(135deg, #ec4899, #8b5cf6);
+                box-shadow: 0 0 20px rgba(236, 72, 153, 0.6), 0 0 40px rgba(139, 92, 246, 0.4);
+            }
+            33% {
+                background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(6, 182, 212, 0.4);
+            }
+            66% {
+                background: linear-gradient(135deg, #06b6d4, #10b981);
+                box-shadow: 0 0 20px rgba(6, 182, 212, 0.6), 0 0 40px rgba(16, 185, 129, 0.4);
+            }
+            100% {
+                background: linear-gradient(135deg, #10b981, #ec4899);
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), 0 0 40px rgba(236, 72, 153, 0.4);
+            }
+        }
+
+        .rgb-orb {
+            animation: rgbOrb 4s ease-in-out infinite;
+        }
+
+        /* Animated starfield background */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f0f0f;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            animation: heartFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes heartFloat {
+            0%, 100% { 
+                opacity: 0.4; 
+                transform: translateY(0) scale(1) rotate(0deg); 
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: translateY(-20px) scale(1.1) rotate(5deg); 
+            }
+        }
+
+        .floating-gradient {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        /* Post Drawer */
+        .post-drawer {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .post-drawer.active {
+            display: block;
+            transform: translateY(0);
+        }
+
+        .drawer-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 55;
+        }
+
+        .drawer-backdrop.active {
+            display: block;
+        }
+
+        /* Hide sections */
+        .section-content {
+            display: none;
+        }
+        .section-content.active {
+            display: block;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Pull to refresh indicator */
+        .pull-indicator {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pull-indicator.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gh-bg text-gh-fg min-h-screen pb-20">
+
+<!-- Animated Background -->
+<div class="stars-bg">
+    <div class="star" style="top: 10%; left: 20%; width: 2px; height: 2px; animation-delay: 0s;"></div>
+    <div class="star" style="top: 30%; left: 80%; width: 1px; height: 1px; animation-delay: 1s;"></div>
+    <div class="star" style="top: 50%; left: 40%; width: 2px; height: 2px; animation-delay: 2s;"></div>
+    <div class="star" style="top: 70%; left: 60%; width: 1px; height: 1px; animation-delay: 0.5s;"></div>
+    <div class="star" style="top: 20%; left: 90%; width: 2px; height: 2px; animation-delay: 1.5s;"></div>
+    <div class="star" style="top: 80%; left: 10%; width: 1px; height: 1px; animation-delay: 2.5s;"></div>
+    <div class="star" style="top: 40%; left: 70%; width: 2px; height: 2px; animation-delay: 0.8s;"></div>
+    <div class="star" style="top: 60%; left: 30%; width: 1px; height: 1px; animation-delay: 1.8s;"></div>
+
+    <div class="heart" style="top: 15%; left: 85%;">💓</div>
+    <div class="heart" style="top: 45%; left: 15%;">❤️</div>
+    <div class="heart" style="top: 75%; left: 75%;">💗</div>
+    <div class="heart" style="top: 25%; left: 50%;">💘</div>
+    <div class="heart" style="top: 85%; left: 40%;">💖</div>
+
+    <div class="floating-gradient" style="top: 10%; left: 20%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 0, 110, 0.3) 0%, transparent 70%); animation-delay: 0s;"></div>
+    <div class="floating-gradient" style="top: 60%; right: 20%; width: 350px; height: 350px; background: radial-gradient(circle, rgba(139, 69, 255, 0.3) 0%, transparent 70%); animation-delay: 7s;"></div>
+    <div class="floating-gradient" style="bottom: 10%; left: 10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0, 255, 255, 0.2) 0%, transparent 70%); animation-delay: 14s;"></div>
+</div>
+
+<!-- Pull to Refresh Indicator -->
+<div class="pull-indicator" id="pullIndicator">
+    <div class="bg-gh-panel border border-gh-border rounded-full px-4 py-2">
+        <i class="bi bi-arrow-down-circle text-gh-accent"></i>
+        <span class="text-sm ml-2">Release to refresh</span>
+    </div>
+</div>
+
+<!-- Header -->
+<header class="sticky top-0 z-50 border-b border-gh-border bg-gh-panel/95 backdrop-blur-sm">
+    <nav class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+
+            <!-- Logo + Brand -->
+            <a href="#" onclick="showSection('home')" class="flex items-center gap-3 group">
+                <div class="relative">
+                    <div class="h-10 w-10 rounded-full rgb-orb"></div>
+                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 blur-xl"></div>
+                </div>
+                <span class="text-xl font-bold text-white group-hover:text-gh-accent transition-colors">
+                    trubl
+                </span>
+            </a>
+
+            <!-- Right Side -->
+            <div class="flex items-center gap-2">
+                <button onclick="showSection('notifications')" class="p-2 rounded-lg text-gh-muted hover:text-white hover:bg-gh-panel2 relative">
+                    <i class="bi bi-bell text-xl"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-gh-accent rounded-full"></span>
+                </button>
+                <button onclick="showSection('search')" class="p-2 rounded-lg text-gh-muted hover:text-white hover:bg-gh-panel2">
+                    <i class="bi bi-search text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Content Container -->
+<main class="max-w-7xl mx-auto">
+
+    <!-- HOME SECTION -->
+    <div id="home-section" class="section-content active">
+
+        <!-- Hero Stats -->
+        <div class="px-4 py-6">
+            <div class="bg-gh-panel/80 backdrop-blur-md border border-gh-border rounded-xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-bold text-gh-fg uppercase tracking-wide">Tonight's Heat Map</h2>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-xs text-green-500 font-medium">Live now</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-gh-panel2/80 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-gh-fg">6</div>
+                        <div class="text-xs text-gh-muted mt-1">Active Listings</div>
+                    </div>
+                    <div class="bg-gh-panel2/80 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-gh-fg">3</div>
+                        <div class="text-xs text-gh-muted mt-1">Cities Live</div>
+                    </div>
+                    <div class="bg-gh-panel2/80 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-gh-fg">12</div>
+                        <div class="text-xs text-gh-muted mt-1">Online Now</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="px-4 pb-4">
+            <div class="grid grid-cols-4 gap-3">
+                <button onclick="showSection('browse')" class="flex flex-col items-center gap-2 p-3 bg-gh-panel/80 rounded-xl border border-gh-border">
+                    <i class="bi bi-fire text-2xl text-purple-500"></i>
+                    <span class="text-xs">Trending</span>
+                </button>
+                <button onclick="openLocationPicker()" class="flex flex-col items-center gap-2 p-3 bg-gh-panel/80 rounded-xl border border-gh-border">
+                    <i class="bi bi-geo-alt text-2xl text-blue-500"></i>
+                    <span class="text-xs">Nearby</span>
+                </button>
+                <button onclick="showSection('stories')" class="flex flex-col items-center gap-2 p-3 bg-gh-panel/80 rounded-xl border border-gh-border">
+                    <i class="bi bi-book text-2xl text-pink-500"></i>
+                    <span class="text-xs">Stories</span>
+                </button>
+                <button onclick="showSection('marketplace')" class="flex flex-col items-center gap-2 p-3 bg-gh-panel/80 rounded-xl border border-gh-border">
+                    <i class="bi bi-bag text-2xl text-green-500"></i>
+                    <span class="text-xs">Shop</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Personals Feed -->
+        <div class="px-4 pb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold">Recent Personals</h2>
+                <button onclick="refreshFeed()" class="text-gh-accent text-sm">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+
+            <div class="space-y-3" id="personalsFeed">
+                <!-- Personal Card 1 -->
+                <div class="bg-gh-panel/80 backdrop-blur-md border border-gh-border rounded-xl p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                M
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold">Looking for fun tonight</span>
+                                    <i class="bi bi-patch-check-fill text-blue-500 text-sm"></i>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-gh-muted">
+                                    <span>Atlanta, GA</span>
+                                    <span>•</span>
+                                    <span>2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-gh-accent/10 text-gh-accent px-2 py-1 rounded">M4W</span>
+                    </div>
+                    <p class="text-sm text-gh-muted mb-3">
+                        Would love to hangout with a female tonight, would like the person to be verified before anything...
+                    </p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-heart"></i>
+                            <span>24</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-chat"></i>
+                            <span>5</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Personal Card 2 -->
+                <div class="bg-gh-panel/80 backdrop-blur-md border border-gh-border rounded-xl p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold">
+                                F
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold">Netflix and chill?</span>
+                                    <i class="bi bi-patch-check-fill text-blue-500 text-sm"></i>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-gh-muted">
+                                    <span>Miami, FL</span>
+                                    <span>•</span>
+                                    <span>4 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-purple-500/10 text-purple-400 px-2 py-1 rounded">Casual</span>
+                    </div>
+                    <p class="text-sm text-gh-muted mb-3">
+                        Bored tonight and looking for someone to watch movies with. Must be clean and respectful...
+                    </p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-heart"></i>
+                            <span>42</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-chat"></i>
+                            <span>12</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Personal Card 3 -->
+                <div class="bg-gh-panel/80 backdrop-blur-md border border-gh-border rounded-xl p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white font-bold">
+                                C
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold">Couple seeking third</span>
+                                    <i class="bi bi-patch-check-fill text-blue-500 text-sm"></i>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-gh-muted">
+                                    <span>Los Angeles, CA</span>
+                                    <span>•</span>
+                                    <span>6 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded">Couples</span>
+                    </div>
+                    <p class="text-sm text-gh-muted mb-3">
+                        Open-minded couple looking for a fun third to join us this weekend. Please be 420 friendly...
+                    </p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-heart"></i>
+                            <span>67</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-chat"></i>
+                            <span>28</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BROWSE SECTION -->
+    <div id="browse-section" class="section-content">
+        <div class="px-4 py-6">
+            <h1 class="text-2xl font-bold mb-6">Browse Personals</h1>
+
+            <!-- Filter Chips -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
+                <button class="px-4 py-2 bg-gh-accent text-white rounded-full text-sm font-medium whitespace-nowrap">
+                    All
+                </button>
+                <button class="px-4 py-2 bg-gh-panel2 text-gh-muted rounded-full text-sm font-medium whitespace-nowrap">
+                    Men Seeking Women
+                </button>
+                <button class="px-4 py-2 bg-gh-panel2 text-gh-muted rounded-full text-sm font-medium whitespace-nowrap">
+                    Women Seeking Men
+                </button>
+                <button class="px-4 py-2 bg-gh-panel2 text-gh-muted rounded-full text-sm font-medium whitespace-nowrap">
+                    Casual Encounters
+                </button>
+                <button class="px-4 py-2 bg-gh-panel2 text-gh-muted rounded-full text-sm font-medium whitespace-nowrap">
+                    Couples
+                </button>
+            </div>
+
+            <!-- Browse Grid -->
+            <div class="grid grid-cols-1 gap-4">
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs bg-gh-accent/10 text-gh-accent px-2 py-1 rounded">M4W</span>
+                        <span class="text-xs text-gh-muted">Atlanta, GA</span>
+                    </div>
+                    <h3 class="font-semibold mb-2">Test</h3>
+                    <p class="text-sm text-gh-muted mb-3">This is a test and a half a month and then you can do it with the new one of them and...</p>
+                    <div class="flex items-center gap-2">
+                        <i class="bi bi-patch-check-fill text-blue-500 text-sm"></i>
+                        <span class="text-xs text-gh-muted">Verified</span>
+                    </div>
+                </div>
+
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs bg-purple-500/10 text-purple-400 px-2 py-1 rounded">Casual</span>
+                        <span class="text-xs text-gh-muted">Miami, FL</span>
+                    </div>
+                    <h3 class="font-semibold mb-2">Looking for some fun tonight</h3>
+                    <p class="text-sm text-gh-muted mb-3">Would love to hangout with a female tonight, would like the person to be verified before anything...</p>
+                    <div class="flex items-center gap-2">
+                        <i class="bi bi-patch-check-fill text-blue-500 text-sm"></i>
+                        <span class="text-xs text-gh-muted">Verified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORIES SECTION -->
+    <div id="stories-section" class="section-content">
+        <div class="px-4 py-6">
+            <h1 class="text-2xl font-bold mb-6">Hookup Stories</h1>
+
+            <div class="space-y-4">
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-500"></div>
+                        <div>
+                            <div class="font-semibold">Anonymous User</div>
+                            <div class="text-xs text-gh-muted">Posted 1 day ago</div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">My First Tinder Hookup</h3>
+                    <p class="text-sm text-gh-muted mb-3">
+                        So I matched with this girl on Tinder last week and we hit it off immediately. After chatting for a few days, we decided to meet up...
+                    </p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-heart"></i> 156
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-chat"></i> 23
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500"></div>
+                        <div>
+                            <div class="font-semibold">Anonymous User</div>
+                            <div class="text-xs text-gh-muted">Posted 3 days ago</div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Unexpected Encounter at the Club</h3>
+                    <p class="text-sm text-gh-muted mb-3">
+                        Went out with friends last weekend and ended up meeting someone amazing on the dance floor. One thing led to another...
+                    </p>
+                    <div class="flex items-center gap-4 text-sm">
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-heart"></i> 203
+                        </button>
+                        <button class="flex items-center gap-1 text-gh-muted hover:text-gh-accent">
+                            <i class="bi bi-chat"></i> 45
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MARKETPLACE SECTION -->
+    <div id="marketplace-section" class="section-content">
+        <div class="px-4 py-6">
+            <h1 class="text-2xl font-bold mb-6">Creator Marketplace</h1>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl overflow-hidden">
+                    <div class="aspect-square bg-gradient-to-br from-pink-500 to-purple-500"></div>
+                    <div class="p-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-pink-500"></div>
+                            <span class="text-sm font-semibold">@Creator1</span>
+                            <i class="bi bi-patch-check-fill text-blue-500 text-xs"></i>
+                        </div>
+                        <p class="text-xs text-gh-muted mb-2">Exclusive content pack</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gh-accent font-bold">$9.99</span>
+                            <button class="text-xs bg-gh-accent text-white px-3 py-1 rounded">Buy</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl overflow-hidden">
+                    <div class="aspect-square bg-gradient-to-br from-cyan-500 to-blue-500"></div>
+                    <div class="p-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-cyan-500"></div>
+                            <span class="text-sm font-semibold">@Creator2</span>
+                            <i class="bi bi-patch-check-fill text-blue-500 text-xs"></i>
+                        </div>
+                        <p class="text-xs text-gh-muted mb-2">Premium photos</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gh-accent font-bold">$14.99</span>
+                            <button class="text-xs bg-gh-accent text-white px-3 py-1 rounded">Buy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSAGES SECTION -->
+    <div id="messages-section" class="section-content">
+        <div class="px-4 py-6">
+            <h1 class="text-2xl font-bold mb-6">Messages</h1>
+
+            <div class="space-y-2">
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-500"></div>
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-gh-panel rounded-full"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-semibold">Sarah M.</span>
+                            <span class="text-xs text-gh-muted">2m ago</span>
+                        </div>
+                        <p class="text-sm text-gh-muted truncate">Hey! Are you still available tonight?</p>
+                    </div>
+                    <div class="w-5 h-5 bg-gh-accent rounded-full flex items-center justify-center text-xs text-white font-bold">3</div>
+                </div>
+
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500"></div>
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-gray-500 border-2 border-gh-panel rounded-full"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-semibold">Mike J.</span>
+                            <span class="text-xs text-gh-muted">1h ago</span>
+                        </div>
+                        <p class="text-sm text-gh-muted truncate">Thanks for the info, I'll check it out</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE SECTION -->
+    <div id="profile-section" class="section-content">
+        <div class="px-4 py-6">
+            <!-- Profile Header -->
+            <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                        U
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h2 class="text-xl font-bold">User Name</h2>
+                            <i class="bi bi-patch-check-fill text-blue-500"></i>
+                        </div>
+                        <p class="text-sm text-gh-muted">Atlanta, GA</p>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span class="text-xs bg-gh-accent/10 text-gh-accent px-2 py-1 rounded">Premium</span>
+                            <span class="text-xs text-gh-muted">Member since Jan 2026</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full bg-gh-accent text-white py-2 rounded-lg font-semibold">
+                    Edit Profile
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">12</div>
+                    <div class="text-xs text-gh-muted mt-1">Posts</div>
+                </div>
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">234</div>
+                    <div class="text-xs text-gh-muted mt-1">Likes</div>
+                </div>
+                <div class="bg-gh-panel/80 border border-gh-border rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">45</div>
+                    <div class="text-xs text-gh-muted mt-1">Messages</div>
+                </div>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="space-y-2">
+                <button class="w-full bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-megaphone text-gh-accent"></i>
+                        <span>My Ads</span>
+                    </div>
+                    <i class="bi bi-chevron-right text-gh-muted"></i>
+                </button>
+                <button class="w-full bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-heart text-gh-accent"></i>
+                        <span>Favorites</span>
+                    </div>
+                    <i class="bi bi-chevron-right text-gh-muted"></i>
+                </button>
+                <button class="w-full bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-shield-check text-green-500"></i>
+                        <span>Verification</span>
+                    </div>
+                    <i class="bi bi-chevron-right text-gh-muted"></i>
+                </button>
+                <button class="w-full bg-gh-panel/80 border border-gh-border rounded-xl p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="bi bi-gear text-gh-muted"></i>
+                        <span>Settings</span>
+                    </div>
+                    <i class="bi bi-chevron-right text-gh-muted"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Post Drawer -->
+<div id="drawer-backdrop" class="drawer-backdrop" onclick="togglePostDrawer()"></div>
+<div id="post-drawer" class="post-drawer">
+    <div class="bg-gh-panel border-t border-gh-border rounded-t-2xl shadow-2xl">
+        <div class="p-4 border-b border-gh-border flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">Create New Post</h3>
+            <button onclick="togglePostDrawer()" class="p-2 rounded-lg text-gh-muted hover:text-white hover:bg-gh-panel2">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="p-4 space-y-3">
+            <button class="w-full flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gh-accent/20 text-gh-accent">
+                    <i class="bi bi-megaphone text-xl"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <p class="text-sm font-semibold text-white">Post to Listings</p>
+                    <p class="text-xs text-gh-muted">Create a personal ad or listing</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </button>
+
+            <button class="w-full flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400">
+                    <i class="bi bi-book text-xl"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <p class="text-sm font-semibold text-white">Share a Story</p>
+                    <p class="text-xs text-gh-muted">Tell your hookup experience</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </button>
+
+            <button class="w-full flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400">
+                    <i class="bi bi-chat-dots text-xl"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <p class="text-sm font-semibold text-white">Post to Forums</p>
+                    <p class="text-xs text-gh-muted">Start a community discussion</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<div class="fixed bottom-0 inset-x-0 z-40 border-t border-gh-border bg-gh-panel/95 backdrop-blur-sm">
+    <div class="flex items-center justify-around h-16 px-2">
+        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center gap-0.5 px-3 py-1 text-gh-accent">
+            <i class="bi bi-house-fill text-xl"></i>
+            <span class="text-[10px]">Home</span>
+        </button>
+        <button onclick="showSection('browse')" id="nav-browse" class="flex flex-col items-center gap-0.5 px-3 py-1 text-gh-muted">
+            <i class="bi bi-grid text-xl"></i>
+            <span class="text-[10px]">Browse</span>
+        </button>
+        <button onclick="togglePostDrawer()" class="flex flex-col items-center gap-0.5 px-3 py-1 text-gh-accent">
+            <i class="bi bi-plus-circle-fill text-2xl"></i>
+            <span class="text-[10px]">Post</span>
+        </button>
+        <button onclick="showSection('messages')" id="nav-messages" class="relative flex flex-col items-center gap-0.5 px-3 py-1 text-gh-muted">
+            <i class="bi bi-envelope text-xl"></i>
+            <span class="text-[10px]">Messages</span>
+            <span class="absolute top-0 right-1 w-2 h-2 bg-gh-accent rounded-full"></span>
+        </button>
+        <button onclick="showSection('profile')" id="nav-profile" class="flex flex-col items-center gap-0.5 px-3 py-1 text-gh-muted">
+            <i class="bi bi-person text-xl"></i>
+            <span class="text-[10px]">Profile</span>
+        </button>
+    </div>
+</div>
+
+<script>
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('Service Worker registered'))
+        .catch(err => console.log('Service Worker registration failed'));
+}
+
+// Section Navigation
+function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.section-content').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Show selected section
+    document.getElementById(sectionName + '-section').classList.add('active');
+
+    // Update nav buttons
+    document.querySelectorAll('[id^="nav-"]').forEach(btn => {
+        btn.classList.remove('text-gh-accent');
+        btn.classList.add('text-gh-muted');
+        btn.querySelector('i').classList.remove('bi-house-fill', 'bi-grid-fill', 'bi-envelope-fill', 'bi-person-fill');
+        btn.querySelector('i').classList.add('bi-house', 'bi-grid', 'bi-envelope', 'bi-person');
+    });
+
+    const activeBtn = document.getElementById('nav-' + sectionName);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-gh-muted');
+        activeBtn.classList.add('text-gh-accent');
+        const icon = activeBtn.querySelector('i');
+        icon.classList.remove('bi-house', 'bi-grid', 'bi-envelope', 'bi-person');
+        if (sectionName === 'home') icon.classList.add('bi-house-fill');
+        if (sectionName === 'browse') icon.classList.add('bi-grid-fill');
+        if (sectionName === 'messages') icon.classList.add('bi-envelope-fill');
+        if (sectionName === 'profile') icon.classList.add('bi-person-fill');
+    }
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Post Drawer
+function togglePostDrawer() {
+    const drawer = document.getElementById('post-drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+    drawer.classList.toggle('active');
+    backdrop.classList.toggle('active');
+}
+
+// Location Picker
+function openLocationPicker() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                alert(`Location detected: ${position.coords.latitude}, ${position.coords.longitude}`);
+            },
+            error => {
+                alert('Please enable location access to find personals nearby');
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser');
+    }
+}
+
+// Refresh Feed
+function refreshFeed() {
+    const feed = document.getElementById('personalsFeed');
+    feed.style.opacity = '0.5';
+    setTimeout(() => {
+        feed.style.opacity = '1';
+        alert('Feed refreshed!');
+    }, 500);
+}
+
+// Pull to Refresh
+let startY = 0;
+let currentY = 0;
+let pulling = false;
+
+document.addEventListener('touchstart', e => {
+    if (window.scrollY === 0) {
+        startY = e.touches[0].pageY;
+        pulling = true;
+    }
+});
+
+document.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    currentY = e.touches[0].pageY;
+    const distance = currentY - startY;
+
+    if (distance > 0 && distance < 100) {
+        document.getElementById('pullIndicator').classList.add('active');
+    }
+});
+
+document.addEventListener('touchend', () => {
+    if (pulling && currentY - startY > 80) {
+        refreshFeed();
+    }
+    document.getElementById('pullIndicator').classList.remove('active');
+    pulling = false;
+});
+
+// Install Prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Show custom install banner
+    const installBanner = document.createElement('div');
+    installBanner.className = 'fixed bottom-20 left-4 right-4 bg-gh-panel border border-gh-accent rounded-xl p-4 z-50';
+    installBanner.innerHTML = `
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full rgb-orb"></div>
+                <div>
+                    <p class="font-semibold text-sm">Install trubl App</p>
+                    <p class="text-xs text-gh-muted">Add to home screen</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="dismissInstall(this)" class="text-xs text-gh-muted px-3 py-1">Later</button>
+                <button onclick="installApp()" class="text-xs bg-gh-accent text-white px-3 py-1 rounded">Install</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(installBanner);
+});
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+        });
+    }
+    document.querySelector('.fixed.bottom-20').remove();
+}
+
+function dismissInstall(btn) {
+    btn.closest('.fixed').remove();
+}
+</script>
+
+</body>
+</html>

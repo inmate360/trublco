@@ -1,0 +1,233 @@
+<?php
+/**
+ * Footer Template - With Mobile Bottom Navigation
+ * Updated: January 3, 2026
+ */
+?>
+
+<!-- Mobile Bottom Navigation -->
+<div class="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gh-border bg-gh-panel/95 backdrop-blur-sm">
+    <div class="flex items-center justify-around h-16 px-2">
+
+        <!-- Home -->
+        <a href="/index.php" 
+           class="flex flex-col items-center gap-0.5 px-3 py-1 <?php echo $current_page == 'index' ? 'text-gh-accent' : 'text-gh-muted'; ?>">
+            <i class="bi bi-house text-xl"></i>
+            <span class="text-[10px]">Home</span>
+        </a>
+
+        <!-- Browse -->
+        <a href="/browse.php" 
+           class="flex flex-col items-center gap-0.5 px-3 py-1 <?php echo $current_page == 'browse' ? 'text-gh-accent' : 'text-gh-muted'; ?>">
+            <i class="bi bi-grid text-xl"></i>
+            <span class="text-[10px]">Browse</span>
+        </a>
+
+        <!-- Post (Center Button) -->
+        <button onclick="togglePostDrawer()" 
+                class="flex flex-col items-center gap-0.5 px-3 py-1 text-gh-accent">
+            <i class="bi bi-plus-circle-fill text-2xl"></i>
+            <span class="text-[10px]">Post</span>
+        </button>
+
+        <!-- Messages -->
+        <a href="/messages.php" 
+           class="relative flex flex-col items-center gap-0.5 px-3 py-1 <?php echo $current_page == 'messages' || $current_page == 'messages-inbox' ? 'text-gh-accent' : 'text-gh-muted'; ?>">
+            <i class="bi bi-envelope text-xl"></i>
+            <span class="text-[10px]">Messages</span>
+            <?php if(isset($unread_messages) && $unread_messages > 0): ?>
+            <span class="absolute top-0 right-1 h-3 w-3 rounded-full bg-gh-accent"></span>
+            <?php endif; ?>
+        </a>
+
+        <!-- Profile -->
+        <a href="/profile.php" 
+           class="flex flex-col items-center gap-0.5 px-3 py-1 <?php echo $current_page == 'profile' ? 'text-gh-accent' : 'text-gh-muted'; ?>">
+            <i class="bi bi-person text-xl"></i>
+            <span class="text-[10px]">Profile</span>
+        </a>
+
+    </div>
+</div>
+
+<!-- Post Drawer Backdrop -->
+<div id="drawer-backdrop" class="drawer-backdrop" onclick="togglePostDrawer()"></div>
+
+<!-- Post Drawer -->
+<div id="post-drawer" class="post-drawer">
+    <div class="bg-gh-panel border-t border-gh-border rounded-t-2xl shadow-2xl">
+
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-gh-border flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">Create New Post</h3>
+            <button onclick="togglePostDrawer()" 
+                    class="p-2 rounded-lg text-gh-muted hover:text-white hover:bg-gh-panel2">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Content -->
+        <div class="p-4 space-y-3">
+
+            <!-- Post to Listings -->
+            <a href="/post-ad.php" 
+               class="flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gh-accent/20 text-gh-accent">
+                    <i class="bi bi-megaphone text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Post to Listings</p>
+                    <p class="text-xs text-gh-muted">Create a personal ad or listing</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </a>
+
+            <!-- Share a Story -->
+            <a href="/story-submit.php" 
+               class="flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/20 text-purple-400">
+                    <i class="bi bi-book text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Share a Story</p>
+                    <p class="text-xs text-gh-muted">Tell your hookup experience</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </a>
+
+            <!-- Post to Forum -->
+            <a href="/forum.php" 
+               class="flex items-center gap-3 p-4 rounded-xl border border-gh-border bg-gh-panel2 hover:bg-gh-bg transition-colors">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400">
+                    <i class="bi bi-chat-dots text-xl"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-white">Post to Forum</p>
+                    <p class="text-xs text-gh-muted">Start a community discussion</p>
+                </div>
+                <i class="bi bi-chevron-right text-gh-muted"></i>
+            </a>
+
+        </div>
+    </div>
+</div>
+
+<!-- Post Drawer Styles -->
+<style>
+.post-drawer {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.post-drawer.active {
+    display: block;
+    transform: translateY(0);
+}
+
+.drawer-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 55;
+}
+
+.drawer-backdrop.active {
+    display: block;
+}
+</style>
+
+<!-- Post Drawer JavaScript -->
+<script>
+function togglePostDrawer() {
+    const drawer = document.getElementById('post-drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+
+    drawer.classList.toggle('active');
+    backdrop.classList.toggle('active');
+}
+</script>
+
+<!-- Desktop Footer -->
+<footer class="hidden md:block bg-gh-panel border-t border-gh-border mt-16">
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+            <!-- About -->
+            <div>
+                <h3 class="text-white font-semibold mb-4">About trubl.co</h3>
+                <p class="text-gh-muted text-sm mb-4">
+                    The premier adult personals and creator marketplace. Connect with real people for real experiences.
+                </p>
+                <div class="flex gap-3">
+                    <a href="#" class="text-gh-muted hover:text-gh-accent transition-colors">
+                        <i class="bi bi-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gh-muted hover:text-gh-accent transition-colors">
+                        <i class="bi bi-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gh-muted hover:text-gh-accent transition-colors">
+                        <i class="bi bi-facebook text-xl"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/browse.php" class="text-gh-muted hover:text-white transition-colors">Browse Ads</a></li>
+                    <li><a href="/story.php" class="text-gh-muted hover:text-white transition-colors">Stories</a></li>
+                    <li><a href="/marketplace.php" class="text-gh-muted hover:text-white transition-colors">Marketplace</a></li>
+                    <li><a href="/forum.php" class="text-gh-muted hover:text-white transition-colors">Forum</a></li>
+                    <li><a href="/how-it-works.php" class="text-gh-muted hover:text-white transition-colors">How It Works</a></li>
+                </ul>
+            </div>
+
+            <!-- Support -->
+            <div>
+                <h3 class="text-white font-semibold mb-4">Support</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/help.php" class="text-gh-muted hover:text-white transition-colors">Help Center</a></li>
+                    <li><a href="/contact.php" class="text-gh-muted hover:text-white transition-colors">Contact Us</a></li>
+                    <li><a href="/report-abuse.php" class="text-gh-muted hover:text-white transition-colors">Report Abuse</a></li>
+                    <li><a href="/safety.php" class="text-gh-muted hover:text-white transition-colors">Safety Tips</a></li>
+                    <li><a href="/faq.php" class="text-gh-muted hover:text-white transition-colors">FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal -->
+            <div>
+                <h3 class="text-white font-semibold mb-4">Legal</h3>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="/terms.php" class="text-gh-muted hover:text-white transition-colors">Terms of Service</a></li>
+                    <li><a href="/privacy.php" class="text-gh-muted hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="/cookie-policy.php" class="text-gh-muted hover:text-white transition-colors">Cookie Policy</a></li>
+                    <li><a href="/dmca.php" class="text-gh-muted hover:text-white transition-colors">DMCA</a></li>
+                    <li><a href="/2257.php" class="text-gh-muted hover:text-white transition-colors">18 U.S.C. 2257</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="border-t border-gh-border mt-8 pt-8 text-center">
+            <p class="text-gh-muted text-sm">
+                © <?php echo date('Y'); ?> trubl.co - All rights reserved. 
+                <span class="text-gh-accent">18+ Only</span>
+            </p>
+        </div>
+    </div>
+</footer>
+
+<!-- Spacer for mobile bottom nav -->
+<div class="md:hidden h-16"></div>
+
+</body>
+</html>

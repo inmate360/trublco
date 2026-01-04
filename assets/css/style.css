@@ -1,0 +1,275 @@
+/* Turnpage “Aurora” Theme
+   Drop-in replacement for assets/css/dark-blue-theme.css
+   Compatible with existing variable names used across the platform.
+*/
+
+/* ------------------------------------------------------------
+   1) Theme tokens (scoped to data-theme)
+------------------------------------------------------------ */
+html[data-theme="dark"] {
+  /* Brand (keep variable names for compatibility) */
+  --primary-blue: #8B5CF6;         /* Aurora violet */
+  --primary-blue-hover: #A78BFA;
+  --secondary-blue: #22D3EE;       /* Cyan glow */
+  --accent-blue: #34D399;          /* Mint */
+
+  /* Base surfaces */
+  --dark-bg: #070A14;
+  --card-bg: #0E1629;
+  --nav-bg: #0A1022;
+
+  /* Text + borders */
+  --text-white: #EAF2FF;
+  --text-gray: #9AA8C7;
+  --border-color: #22304D;
+
+  /* Status */
+  --success-green: #22C55E;
+  --danger-red: #EF4444;
+  --warning-orange: #F59E0B;
+  --info-cyan: #06B6D4;
+  --featured-gold: #FBBF24;
+
+  /* Extras */
+  --shadow: 0 14px 48px rgba(0, 0, 0, 0.45);
+  --radius: 14px;
+}
+
+html[data-theme="light"] {
+  /* Brand */
+  --primary-blue: #6D28D9;
+  --primary-blue-hover: #7C3AED;
+  --secondary-blue: #0891B2;
+  --accent-blue: #059669;
+
+  /* Base surfaces */
+  --dark-bg: #F6F8FF;      /* used as “page bg” in light mode */
+  --card-bg: #FFFFFF;
+  --nav-bg: #FFFFFF;
+
+  /* Text + borders */
+  --text-white: #0B1220;   /* keep name; becomes “primary text” */
+  --text-gray: #475569;
+  --border-color: #E5E7EB;
+
+  /* Status */
+  --success-green: #16A34A;
+  --danger-red: #DC2626;
+  --warning-orange: #D97706;
+  --info-cyan: #0891B2;
+  --featured-gold: #D97706;
+
+  /* Extras */
+  --shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
+  --radius: 14px;
+}
+
+/* ------------------------------------------------------------
+   2) Global base
+------------------------------------------------------------ */
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--text-white);
+  background:
+    radial-gradient(1000px 600px at 15% 10%, color-mix(in srgb, var(--secondary-blue) 22%, transparent), transparent 60%),
+    radial-gradient(900px 500px at 85% 20%, color-mix(in srgb, var(--primary-blue) 20%, transparent), transparent 62%),
+    radial-gradient(900px 520px at 70% 90%, color-mix(in srgb, var(--accent-blue) 16%, transparent), transparent 60%),
+    linear-gradient(135deg, var(--dark-bg) 0%, color-mix(in srgb, var(--card-bg) 65%, var(--dark-bg)) 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Links */
+a { color: var(--secondary-blue); text-decoration: none; }
+a:hover { color: var(--primary-blue); text-decoration: underline; }
+
+/* Containers (keep compatible with your existing theme) */
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+.container-narrow { max-width: 700px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+/* ------------------------------------------------------------
+   3) Cards / surfaces / typography
+------------------------------------------------------------ */
+.card, .sidebar-card, .categories-container, .listings-list, .featured-listings {
+  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--radius) + 2px);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.card { padding: 2rem; margin-bottom: 2rem; }
+.card h1, .card h2, .card h3 { color: var(--text-white); margin-bottom: 1rem; word-wrap: break-word; }
+p, li, td { color: var(--text-gray); }
+
+/* ------------------------------------------------------------
+   4) Buttons (Bootstrap-friendly + your custom classes)
+------------------------------------------------------------ */
+.btn-primary, .btn-secondary, .btn-danger, .btn-success,
+.view-btn, .action-btn, .search-btn {
+  border-radius: 12px;
+  font-weight: 700;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.btn-primary, .view-btn, .action-btn.btn-message, .search-btn {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+  border: none;
+  color: #fff;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--primary-blue) 28%, transparent);
+}
+
+.btn-primary:hover, .view-btn:hover, .action-btn.btn-message:hover, .search-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--secondary-blue) 30%, transparent);
+  color: #fff;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 2px solid color-mix(in srgb, var(--primary-blue) 70%, var(--border-color));
+  color: var(--primary-blue);
+}
+.btn-secondary:hover {
+  background: color-mix(in srgb, var(--primary-blue) 10%, transparent);
+  border-color: var(--secondary-blue);
+  color: var(--secondary-blue);
+  transform: translateY(-2px);
+}
+
+.btn-danger { background: var(--danger-red); color: #fff; border: none; }
+.btn-danger:hover { transform: translateY(-2px); filter: brightness(0.95); }
+.btn-success { background: var(--success-green); color: #fff; border: none; }
+.btn-success:hover { transform: translateY(-2px); filter: brightness(0.95); }
+
+.btn-block { width: 100%; }
+.btn-small { padding: .5rem 1rem; font-size: .9rem; }
+
+/* ------------------------------------------------------------
+   5) Forms
+------------------------------------------------------------ */
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { display:block; margin-bottom: .5rem; font-weight: 600; color: var(--text-gray); }
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: .85rem .95rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--card-bg) 78%, transparent);
+  color: var(--text-white);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--secondary-blue) 70%, var(--primary-blue));
+  background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--secondary-blue) 16%, transparent);
+}
+
+.form-group input:disabled, .form-group select:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------
+   6) Alerts / badges / chips
+------------------------------------------------------------ */
+.alert { border-radius: 12px; border: 1px solid var(--border-color); }
+.alert-success { background: color-mix(in srgb, var(--success-green) 14%, transparent); color: var(--success-green); border-left: 4px solid var(--success-green); }
+.alert-error { background: color-mix(in srgb, var(--danger-red) 14%, transparent); color: var(--danger-red); border-left: 4px solid var(--danger-red); }
+.alert-info { background: color-mix(in srgb, var(--info-cyan) 14%, transparent); color: var(--info-cyan); border-left: 4px solid var(--info-cyan); }
+.alert-warning { background: color-mix(in srgb, var(--warning-orange) 14%, transparent); color: var(--warning-orange); border-left: 4px solid var(--warning-orange); }
+
+.category-badge {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+  color: #fff;
+  padding: .3rem .75rem;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+/* City quick filters */
+.filter-chip {
+  background: color-mix(in srgb, var(--card-bg) 70%, transparent) !important;
+  color: var(--text-white) !important;
+  border: 2px solid color-mix(in srgb, var(--border-color) 75%, transparent) !important;
+}
+.filter-chip:hover, .filter-chip.active {
+  background: color-mix(in srgb, var(--secondary-blue) 18%, var(--card-bg)) !important;
+  border-color: color-mix(in srgb, var(--secondary-blue) 55%, var(--border-color)) !important;
+  color: var(--text-white) !important;
+}
+
+/* ------------------------------------------------------------
+   7) Tables / pagination
+------------------------------------------------------------ */
+table { width:100%; border-collapse: collapse; margin: 1rem 0; }
+th, td { padding: 1rem; border-bottom: 1px solid var(--border-color); }
+th { background: color-mix(in srgb, var(--secondary-blue) 10%, transparent); color: var(--text-white); font-weight: 800; }
+tr:hover { background: color-mix(in srgb, var(--primary-blue) 6%, transparent); }
+
+.page-link {
+  border-radius: 10px !important;
+  border-color: var(--border-color) !important;
+  background: color-mix(in srgb, var(--card-bg) 85%, transparent) !important;
+  color: var(--text-white) !important;
+}
+.page-item.active .page-link {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
+  border-color: transparent !important;
+}
+
+/* ------------------------------------------------------------
+   8) Navbar + dropdown (override hard-coded blues in header-2.php)
+------------------------------------------------------------ */
+/* Your header-2.php uses hard-coded gradients like 4267F5/1D9BF0 in the <style> block.
+   These !important rules re-skin them without editing PHP. */
+.brand-text {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.brand-logo { box-shadow: 0 8px 20px color-mix(in srgb, var(--primary-blue) 25%, transparent) !important; }
+
+.nav-link:hover {
+  background: color-mix(in srgb, var(--primary-blue) 10%, transparent) !important;
+  color: var(--text-white) !important;
+}
+.nav-link.active { color: var(--text-white) !important; }
+.nav-link.active::after {
+  background: linear-gradient(90deg, var(--primary-blue), var(--secondary-blue)) !important;
+}
+
+.dropdown-header {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
+}
+.user-avatar {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
+}
+
+/* ------------------------------------------------------------
+   9) City + listing page overrides (those pages also hard-code blues)
+------------------------------------------------------------ */
+.city-hero { border-bottom-color: color-mix(in srgb, var(--primary-blue) 25%, transparent) !important; }
+.search-btn { background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important; }
+
+.listing-header {
+  background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
+}
+
+/* ------------------------------------------------------------
+   10) Mobile tweaks
+------------------------------------------------------------ */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
+  .card { padding: 1.25rem; }
+  .container, .container-narrow { padding: 0 15px; }
+  .btn-primary, .btn-secondary, .btn-danger, .btn-success { padding: .7rem 1.1rem; }
+}

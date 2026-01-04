@@ -1,0 +1,29 @@
+{
+  "name": "trubl",
+  "version": "1.0.0",
+  "description": "trubl.co - Platform for authentic personals",
+  "main": "index.php",
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/style.css -o ./assets/css/main.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/style.css -o ./assets/css/main.css --watch",
+    "dev": "npm run watch:css"
+  },
+  "keywords": [
+    "php",
+    "tailwind",
+    "trubl",
+    "personals"
+  ],
+  "author": "trubl Team",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
+  },
+  "dependencies": {
+    "bootstrap-icons": "^1.11.2",
+    "flowbite": "^2.2.1",
+    "alpinejs": "^3.13.3"
+  }
+}

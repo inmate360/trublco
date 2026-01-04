@@ -1,0 +1,304 @@
+<?php
+/**
+ * Header Template - Updated with Awards Link
+ * Added 🏆 Awards link beside Messages
+ */
+
+// Prevent direct access
+if(!defined('INCLUDED')) {
+    define('INCLUDED', true);
+}
+
+// Get unread message count if user is logged in
+$unread_messages = 0;
+$unread_notifications = 0;
+$incognito_active = false;
+
+if(isset($_SESSION['user_id'])) {
+    require_once 'config/database.php';
+    require_once 'classes/Message.php';
+    require_once 'classes/SmartNotifications.php';
+    require_once 'classes/IncognitoMode.php';
+
+    $db_header = new Database();
+    $conn_header = $db_header->getConnection();
+
+    try {
+        $msg_header = new Message($conn_header);
+        $unread_messages = $msg_header->getTotalUnreadCount($_SESSION['user_id']);
+    } catch(Exception $e) {
+        $unread_messages = 0;
+    }
+
+    try {
+        $notif_header = new SmartNotifications($conn_header);
+        $unread_notifications = $notif_header->getUnreadCount($_SESSION['user_id']);
+    } catch(Exception $e) {
+        $unread_notifications = 0;
+    }
+
+    try {
+        $incognito_header = new IncognitoMode($conn_header);
+        $incognito_active = $incognito_header->isActive($_SESSION['user_id']);
+    } catch(Exception $e) {
+        $incognito_active = false;
+    }
+
+    try {
+        $columns_query = "SHOW COLUMNS FROM users";
+        $columns_stmt = $conn_header->query($columns_query);
+        $existing_columns = [];
+
+        while($col = $columns_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $existing_columns[] = $col['Field'];
+        }
+
+        $select_fields = ['id', 'username', 'email', 'created_at'];
+
+        if(in_array('current_latitude', $existing_columns)) $select_fields[] = 'current_latitude';
+        if(in_array('auto_location', $existing_columns)) $select_fields[] = 'auto_location';
+        if(in_array('theme_preference', $existing_columns)) $select_fields[] = 'theme_preference';
+        if(in_array('age', $existing_columns)) $select_fields[] = 'age';
+        if(in_array('gender', $existing_columns)) $select_fields[] = 'gender';
+        if(in_array('location', $existing_columns)) $select_fields[] = 'location';
+        if(in_array('bio', $existing_columns)) $select_fields[] = 'bio';
+        if(in_array('is_premium', $existing_columns)) $select_fields[] = 'is_premium';
+        if(in_array('total_points', $existing_columns)) $select_fields[] = 'total_points';
+        if(in_array('award_count', $existing_columns)) $select_fields[] = 'award_count';
+
+        $query = "SELECT " . implode(', ', $select_fields) . " FROM users WHERE id = :user_id LIMIT 1";
+        $stmt = $conn_header->prepare($query);
+        $stmt->bindParam(':user_id', $_SESSION['user_id']);
+        $stmt->execute();
+        $user_data = $stmt->fetch();
+
+        if($user_data) {
+            $user_location_set = isset($user_data['current_latitude']) && !empty($user_data['current_latitude']);
+            $current_theme = $user_data['theme_preference'] ?? 'dark';
+            $is_premium_user = $user_data['is_premium'] ?? false;
+            $current_username = $user_data['username'] ?? 'User';
+            $user_total_points = $user_data['total_points'] ?? 0;
+            $user_award_count = $user_data['award_count'] ?? 0;
+
+            if(in_array('age', $existing_columns) && in_array('gender', $existing_columns) && 
+               in_array('location', $existing_columns) && in_array('bio', $existing_columns)) {
+                $account_age = time() - strtotime($user_data['created_at']);
+                $is_new = $account_age < 86400;
+
+                if($is_new) {
+                    $profile_incomplete = empty($user_data['age']) || 
+                                        empty($user_data['gender']) || 
+                                        empty($user_data['location']) || 
+                                        empty($user_data['bio']) || 
+                                        strlen($user_data['bio']) < 20;
+                }
+            }
+        }
+    } catch(PDOException $e) {
+        error_log("Header query error: " . $e->getMessage());
+    }
+}
+
+$current_page = basename($_SERVER['PHP_SELF'], '.php');
+?>
+<!DOCTYPE html>
+<html lang="en" class="<?php echo $current_theme ?? 'dark'; ?>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title ?? 'Trubl - Personals & Hookups'; ?></title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Custom CSS Variables -->
+    <style>
+        :root {
+            --gh-bg: #0f0f0f;
+            --gh-panel: #1a1a1a;
+            --gh-panel2: #252525;
+            --gh-border: #333333;
+            --gh-fg: #ffffff;
+            --gh-muted: #888888;
+            --gh-accent: #ff006e;
+        }
+
+        .dark {
+            --gh-bg: #0f0f0f;
+            --gh-panel: #1a1a1a;
+            --gh-panel2: #252525;
+            --gh-border: #333333;
+            --gh-fg: #ffffff;
+            --gh-muted: #888888;
+            --gh-accent: #ff006e;
+        }
+
+        .light {
+            --gh-bg: #ffffff;
+            --gh-panel: #f5f5f5;
+            --gh-panel2: #e5e5e5;
+            --gh-border: #d0d0d0;
+            --gh-fg: #000000;
+            --gh-muted: #666666;
+            --gh-accent: #ff006e;
+        }
+
+        body {
+            background-color: var(--gh-bg);
+            color: var(--gh-fg);
+        }
+
+        .bg-gh-bg { background-color: var(--gh-bg); }
+        .bg-gh-panel { background-color: var(--gh-panel); }
+        .bg-gh-panel2 { background-color: var(--gh-panel2); }
+        .bg-gh-accent { background-color: var(--gh-accent); }
+
+        .text-gh-fg { color: var(--gh-fg); }
+        .text-gh-muted { color: var(--gh-muted); }
+        .text-gh-accent { color: var(--gh-accent); }
+
+        .border-gh-border { border-color: var(--gh-border); }
+        .border-gh-accent { border-color: var(--gh-accent); }
+    </style>
+</head>
+<body class="bg-gh-bg text-gh-fg">
+
+<!-- Award Notification Component -->
+<?php if(file_exists('includes/award-notification.php')) include 'includes/award-notification.php'; ?>
+
+<!-- Header Navigation -->
+<header class="bg-gh-panel border-b border-gh-border sticky top-0 z-40">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+
+            <!-- Logo -->
+            <a href="/" class="text-2xl font-bold text-gh-accent hover:opacity-80 transition-opacity">
+                Trubl
+            </a>
+
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center gap-6">
+                <a href="/browse.php" class="text-gh-fg hover:text-gh-accent transition-colors">
+                    Browse
+                </a>
+                <a href="/story.php" class="text-gh-fg hover:text-gh-accent transition-colors">
+                    Stories
+                </a>
+                <a href="/forum.php" class="text-gh-fg hover:text-gh-accent transition-colors">
+                    Forum
+                </a>
+                <a href="/how-it-works.php" class="text-gh-fg hover:text-gh-accent transition-colors">
+                    How It Works
+                </a>
+            </nav>
+
+            <!-- Right Side Navigation -->
+            <div class="flex items-center gap-4">
+
+                <?php if(isset($_SESSION['user_id'])): ?>
+
+                <!-- Messages Link -->
+                <a href="/messages.php" 
+                   class="relative text-gh-fg hover:text-gh-accent transition-colors flex items-center gap-2"
+                   title="Messages">
+                    <i class="bi bi-chat-dots text-xl"></i>
+                    <?php if($unread_messages > 0): ?>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        <?php echo $unread_messages > 9 ? '9+' : $unread_messages; ?>
+                    </span>
+                    <?php endif; ?>
+                    <span class="hidden lg:inline">Messages</span>
+                </a>
+
+                <!-- 🏆 Awards Link - NEW! -->
+                <a href="/awards.php" 
+                   class="relative text-gh-fg hover:text-gh-accent transition-colors flex items-center gap-2"
+                   title="Awards & Achievements">
+                    <span class="text-xl">🏆</span>
+                    <?php if(isset($user_award_count) && $user_award_count > 0): ?>
+                    <span class="absolute -top-1 -right-1 bg-yellow-500 text-black text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                        <?php echo $user_award_count; ?>
+                    </span>
+                    <?php endif; ?>
+                    <span class="hidden lg:inline">Awards</span>
+                </a>
+
+                <!-- Notifications -->
+                <a href="/notifications.php" 
+                   class="relative text-gh-fg hover:text-gh-accent transition-colors"
+                   title="Notifications">
+                    <i class="bi bi-bell text-xl"></i>
+                    <?php if($unread_notifications > 0): ?>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        <?php echo $unread_notifications > 9 ? '9+' : $unread_notifications; ?>
+                    </span>
+                    <?php endif; ?>
+                </a>
+
+                <!-- User Menu Dropdown -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" 
+                            class="flex items-center gap-2 text-gh-fg hover:text-gh-accent transition-colors">
+                        <i class="bi bi-person-circle text-2xl"></i>
+                        <span class="hidden lg:inline"><?php echo htmlspecialchars($current_username); ?></span>
+                        <?php if(isset($user_total_points) && $user_total_points > 0): ?>
+                        <span class="hidden lg:inline text-xs bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded">
+                            <?php echo number_format($user_total_points); ?> pts
+                        </span>
+                        <?php endif; ?>
+                        <i class="bi bi-chevron-down text-sm"></i>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" 
+                         @click.away="open = false"
+                         x-transition
+                         class="absolute right-0 mt-2 w-48 bg-gh-panel border border-gh-border rounded-lg shadow-xl py-2">
+                        <a href="/profile.php" class="block px-4 py-2 hover:bg-gh-panel2 transition-colors">
+                            <i class="bi bi-person mr-2"></i> Profile
+                        </a>
+                        <a href="/awards.php" class="block px-4 py-2 hover:bg-gh-panel2 transition-colors">
+                            🏆 My Awards
+                        </a>
+                        <a href="/my-listings.php" class="block px-4 py-2 hover:bg-gh-panel2 transition-colors">
+                            <i class="bi bi-list-ul mr-2"></i> My Ads
+                        </a>
+                        <a href="/settings.php" class="block px-4 py-2 hover:bg-gh-panel2 transition-colors">
+                            <i class="bi bi-gear mr-2"></i> Settings
+                        </a>
+                        <hr class="my-2 border-gh-border">
+                        <a href="/logout.php" class="block px-4 py-2 hover:bg-red-500/10 text-red-500 transition-colors">
+                            <i class="bi bi-box-arrow-right mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <?php else: ?>
+
+                <!-- Not Logged In -->
+                <a href="/login.php" 
+                   class="text-gh-fg hover:text-gh-accent transition-colors">
+                    Login
+                </a>
+                <a href="/register.php" 
+                   class="bg-gh-accent text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
+                    Sign Up
+                </a>
+
+                <?php endif; ?>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="md:hidden text-gh-fg" @click="mobileMenuOpen = !mobileMenuOpen">
+                    <i class="bi bi-list text-2xl"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- Alpine.js for dropdowns -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
