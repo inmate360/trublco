@@ -2,7 +2,7 @@
 // Add to your existing config.php or create separate file
 
 // Perplexity API Configuration
-define('PERPLEXITY_API_KEY', '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'); // Get from https://docs.perplexity.ai
+define('PERPLEXITY_API_KEY', getenv('PERPLEXITY_API_KEY') ?: 'your-api-key-here'); // Get from https://docs.perplexity.ai
 define('PERPLEXITY_MODEL', 'sonar'); // or 'sonar-pro' for better accuracy
 
 // Moderation Settings

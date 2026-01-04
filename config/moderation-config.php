@@ -2,7 +2,7 @@
 // config/moderation-config.php
 
 // Perplexity API Key - Get at https://www.perplexity.ai/settings/api
-define('PERPLEXITY_API_KEY', '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');
+define('PERPLEXITY_API_KEY', getenv('PERPLEXITY_API_KEY') ?: 'your-api-key-here');
 
 // Model selection
 define('MODERATION_MODEL', 'sonar-pro'); // or 'sonar' for faster/cheaper

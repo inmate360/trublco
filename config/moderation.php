@@ -5,7 +5,7 @@
  */
 
 return [
-    'api_key' => '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', // Replace with your actual key
+    'api_key' => getenv('PERPLEXITY_API_KEY') ?: 'your-api-key-here', // Set PERPLEXITY_API_KEY environment variable
     'enabled' => true,
     'auto_reject_threshold' => 0.85,
     'review_threshold' => 0.60,

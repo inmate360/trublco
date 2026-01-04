@@ -7,7 +7,7 @@ class ContentModerator {
     public function __construct($db) {
         $this->db = $db;
         // Store your Perplexity API key in config
-        $this->apiKey = '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';
+        $this->apiKey = getenv('PERPLEXITY_API_KEY') ?: 'your-api-key-here';
     }
     
     /**
