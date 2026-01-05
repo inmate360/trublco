@@ -6,7 +6,7 @@ class Database {
     private $host = 'ls-c0de346bbcecf4fb03f150cfc282aa30da2c7a66.cyxeec0wo49l.us-east-1.rds.amazonaws.com';
     private $db_name = 'doublelist_clone';
     private $username = 'doublelist_clone';
-    private $password = '&eC^Zeh40Ulvruh4';
+    private $password = '&x';
     private $conn;
 
     public function getConnection() {
